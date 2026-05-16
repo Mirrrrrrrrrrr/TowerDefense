@@ -1,0 +1,15 @@
+Memberi informasi tipe data pada sebuah property, method, atau parameter
+
+Syntax (property & parameter):
+x: int                            #interger
+isOccupied: bool                  #boolean
+waypoints: list[tuple[int, int]]  #list berisi tuple yg berisi 2 int
+
+Syntax (method):
+def is_path(self) -> bool                                #mereturn boolean
+def _defaultWaypoints(self) -> list[tuple[int, int]]     #mereturn list berisi tuple yg berisi 2 int
+def get_cell(self, row: int, col: int) -> Cell:          #mereturn Cell
+
+Fungsi, agar memudahkan pembaca tipe data apa yang diperlukan/ dihasilkan dari sebuah property/ parameter/ method
+Bebas kalo mau make beginian atau engga
+  
