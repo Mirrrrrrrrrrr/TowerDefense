@@ -1,4 +1,4 @@
-import pygame
+    import pygame
 import math
 from abc import ABC, abstractmethod
 
@@ -62,7 +62,7 @@ class Enemy(ABC):
     # ── health bar ────────────────────────────────────────────────────────────
 
     def _draw_health_bar(self, surface: pygame.Surface,
-                         width: int, height: int):
+                        width: int, height: int):
         ratio = max(0.0, self.hp / self.max_hp)
         bar_x = int(self.x - width // 2)
         bar_y = int(self.y - height // 2 - 10)
@@ -79,15 +79,15 @@ class Enemy(ABC):
 # ── NormalEnemy ───────────────────────────────────────────────────────────────
 
 class NormalEnemy(Enemy):
-    """Balanced stats — enemy standar."""
+    """Balanced stats"""
 
     def __init__(self, world_path: list[tuple[float, float]]):
         super().__init__(world_path)
         self.hp = 100
         self.max_hp = 100
-        self.speed = 1.5
+        self.speed = 1
         self.reward = 10
-        self.damage_to_base = 1
+        self.damage_to_base = 5
         self.color = (60, 200, 60)
         self.size = 14
 
@@ -109,15 +109,15 @@ class NormalEnemy(Enemy):
 # ── FastEnemy ─────────────────────────────────────────────────────────────────
 
 class FastEnemy(Enemy):
-    """High speed, low health — susah ditarget."""
+    """High speed, low health"""
 
     def __init__(self, world_path: list[tuple[float, float]]):
         super().__init__(world_path)
         self.hp = 40
         self.max_hp = 40
-        self.speed = 3.5
+        self.speed = 2
         self.reward = 15
-        self.damage_to_base = 1
+        self.damage_to_base = 5
         self.color = (80, 160, 255)
         self.size = 10
 
@@ -141,9 +141,9 @@ class TankEnemy(Enemy):
         super().__init__(world_path)
         self.hp = 400
         self.max_hp = 400
-        self.speed = 0.8
+        self.speed = 0.5
         self.reward = 30
-        self.damage_to_base = 3
+        self.damage_to_base = 20
         self.color = (200, 60, 60)
         self.size = 22
 
