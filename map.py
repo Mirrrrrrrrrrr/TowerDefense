@@ -13,8 +13,6 @@ COLOR_SPAWN = ( 50, 150, 220)  # biru
 COLOR_BASE  = (220,  60,  60)  # merah
 COLOR_GRID  = ( 20,  60,  20)  # garis grid
 COLOR_HOVER = (255, 255, 100)  # highlight hover
-COLOR_BLOCKED = (80, 40, 40)   # cell terisi turret
-
 
 
 class Cell():
@@ -139,7 +137,6 @@ class Grid:
     # untuk memetakan waypoints dan cells diantaranya pada path
     def _build_path(self):
         self.path = []
-        visited: set[tuple[int, int]] = set() # untuk mencatat path yg sudah diproses
 
         for i, (c1, r1) in enumerate(self.waypoints): # memetakan waypoints
             is_last = (i == len(self.waypoints) - 1)
@@ -150,8 +147,7 @@ class Grid:
 
             segment = self._segment_cells(c1, r1, c2, r2, include_end = is_last) # memetakan cells antar waypoints
             for (c, r) in segment:
-                if (c, r) not in visited:
-                    visited.add((c, r))
+                if (c, r):
                     cell = self.cells[r][c]
 
                     if (c,r) == (self.waypoints[0][0], self.waypoints[0][1]):
