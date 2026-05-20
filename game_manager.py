@@ -6,7 +6,7 @@ from enemy import NormalEnemy, FastEnemy, TankEnemy
 
 pg.init()
 
-# 
+# ========== speed control ==========
 class gameSpeedCtrl:
   SPEEDS: list[float] = [1.0, 2.0]
 
@@ -29,11 +29,16 @@ class gameSpeedCtrl:
 
 
 
-
+# ========== game manager ==========
 class GameManager:
-  hp: int = 100
+  lives: int = 100
   gold: int = 0
-  wave: int = 0
-  turrets: list[int] = t[]
-  enemies: list[int] = e[]
+  gameOver: bool = False
+  victory: bool = False
+
+  
+  
+  turrets: list = []
+  enemies: list = []
+  projectile: list = []
   
