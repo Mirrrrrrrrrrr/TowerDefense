@@ -48,9 +48,21 @@ class Cell():
         rect = self.get_rect()
 
        if self.tileType == TILE_EMPTY:
-           if Assets.TILE_EMPTY
+           if Assets.TILE_EMPTY:
+               surface.blit(Assets.TILE_EMPTY, rect.topleft)
+           else:
+               pg.draw.rect(surface, COLOR_EMPTY, rect)
 
-        pg.draw.rect(surface, color, rect)
+       elif self.is_path():
+           if self.image:
+               surface.blit(self.image, rect.topleft)
+           else: # Fallback warna jika gambar gagal dimuat
+               if self.tileType == TILE_SPAWN:
+                   color = COLOR_SPAWN 
+               elif self.tileType == TILE_BASE:
+                   color = COLOR_BASE
+               else: color == COLOR_PATH
+                pg.draw.rect(surface, color, rect)
 
         # hover highlight 
         if hovered and self.can_place_turret:
@@ -147,6 +159,33 @@ class Grid:
                     else:
                         cell.tileType = TILE_PATH
                     self.path.append(cell)
+                    
+        self_update_path_image()
+
+        def _update_path_image():
+            # Nilai tetangga: Atas=1, Kanan=2, Bawah=4, Kiri=8
+        BITMASK_MAP = {
+            1: Assets.TILE_STRAIGHT_V,    2: Assets.TILE_STRAIGHT_H,
+            4: Assets.TILE_STRAIGHT_V,    8: Assets.TILE_STRAIGHT_H,
+            5: Assets.TILE_STRAIGHT_V,    10: Assets.TILE_STRAIGHT_H,
+            3: Assets.TILE_CORNER_RU,     6: Assets.TILE_CORNER_RD,
+            9: Assets.TILE_CORNER_LU,     12: Assets.TILE_CORNER_LD,
+            13: Assets.TILE_T_NO_R,       11: Assets.TILE_T_NO_D,
+            7: Assets.TILE_T_NO_L,        14: Assets.TILE_T_NO_U,
+            15: Assets.TILE_CROSS,
+        }
+
+        for row in range(self.rows):
+            for col in range(self.cols):
+                if self.is_path():
+                    mask = 0
+                    # Cek cell tetangga apakah cell tetangga merupakan jalan 
+                    if row > 0 and self.cells[row-1][col].is_path mask += 1
+                    if col > 0 and self.cells[row][col-1].is_path mask += 8
+                    if row < self.row - 1 and self.cells[row+1][col].is_path mask += 4
+                    if col < self.col - 1 and self.cells[row][col+1].is_path mask += 2
+
+                    cell.image = BITMASK_MAP.get(mask, none)
 
     def _segment_cells(
         self,
