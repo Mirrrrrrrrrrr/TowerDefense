@@ -179,7 +179,7 @@ class Grid:
 
         return segment_coordinates 
 
-    # ── akses cell ───────────────────────────────────────────────────────────
+    # ========== akses cell ==========
     def get_cell(self, row: int, col: int) -> Cell:
         if 0 <= row < self.rows and 0 <= col < self.cols:
             return self.cells[row][col]
@@ -190,7 +190,7 @@ class Grid:
         row = py // self.cellSize
         return self.get_cell(row, col)
 
-    # ── draw ─────────────────────────────────────────────────────────────────
+    # ========== draw ==========
     def draw(self, surface: pg.Surface,
             show_grid: bool = True,
             mousePos: tuple[int, int] = None):
