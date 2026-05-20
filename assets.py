@@ -47,7 +47,7 @@ class Assets:
         cls.TILE_T_NO_U     = cls.TILES[11]
 
         cls.TILE_CROSS      = cls.TILES[12]
-        cls.TILE_EMPTY_BG   = cls.TILES[16]
+        cls.TILE_EMPTY      = cls.TILES[16]
 
     @classmethod
     def slice_spritesheet(cls, sheet: pg.Surface, tile_width: int, tile_height: int) -> list[pg.Surface]:
