@@ -47,18 +47,8 @@ class Cell():
             hovered: bool = False):
         rect = self.get_rect()
 
-        if self.tileType == TILE_SPAWN:
-            color = COLOR_SPAWN
-        elif self.tileType == TILE_BASE:
-            color = COLOR_BASE
-        elif self.tileType == TILE_PATH:
-            color = COLOR_PATH
-        elif self.isOccupied:
-            color = COLOR_BLOCKED
-        elif self.isOccupied:
-            color = COLOR_ROCKY
-        else:
-            color = COLOR_EMPTY
+       if self.tileType == TILE_EMPTY:
+           if Assets.TILE_EMPTY
 
         pg.draw.rect(surface, color, rect)
 
@@ -150,9 +140,9 @@ class Grid:
                 if (c, r):
                     cell = self.cells[r][c]
 
-                    if (c,r) == (self.waypoints[0][0], self.waypoints[0][1]):
+                    if (c,r) == self.waypoints[0]:
                         cell.tileType = TILE_SPAWN
-                    elif (c, r) == (self.waypoints[-1][0], self.waypoints[-1][1]):
+                    elif (c, r) == self.waypoints[-1]:
                         cell.tileType = TILE_BASE
                     else:
                         cell.tileType = TILE_PATH
