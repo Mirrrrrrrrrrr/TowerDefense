@@ -3,6 +3,7 @@ from map import Grid
 from enemy import NormalEnemy, FastEnemy, TankEnemy
 
 pg.init()
+Assets.load()
 
 COLS, ROWS, CELL = 16, 16, 48
 HUD_WIDTH = 300
