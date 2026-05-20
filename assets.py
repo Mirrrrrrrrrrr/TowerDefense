@@ -18,7 +18,7 @@ class Assets:
     TILE_T_NO_U = None
 
     TILE_CROSS = None
-    TILE_EMPTY_BG = None
+    TILE_EMPTY = None
 
     @classmethod
     def load(cls):
