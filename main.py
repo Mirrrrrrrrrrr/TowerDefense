@@ -1,4 +1,5 @@
 import pygame as pg
+from assets import Assets
 from map import Grid
 from enemy import NormalEnemy, FastEnemy, TankEnemy
 
