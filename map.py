@@ -1,4 +1,5 @@
 import pygame as pg                 # untuk deklarasi pygame gunakan pg 
+from assets import Assets
 
 pg.init()
 
@@ -26,6 +27,7 @@ class Cell():
         self._cellSize = _cellSize
         self._offset_x = _offset_x
         self._offset_y = _offset_y
+        self.image = None
 
     def get_rect(self) -> pg.Rect:          
         x = self.col * self._cellSize # x = self._offset_x + self.col * self._cellSize untuk HUD kiri
@@ -47,25 +49,27 @@ class Cell():
             hovered: bool = False):
         rect = self.get_rect()
 
-       if self.tileType == TILE_EMPTY:
-           if Assets.TILE_EMPTY:
-               surface.blit(Assets.TILE_EMPTY, rect.topleft)
-           else:
-               pg.draw.rect(surface, COLOR_EMPTY, rect)
+        if self.tileType == TILE_EMPTY:
+            if Assets.TILE_EMPTY:
+                surface.blit(Assets.TILE_EMPTY, rect.topleft)
+            else:
+                pg.draw.rect(surface, COLOR_EMPTY, rect)
 
-       elif self.is_path():
-           if self.image:
-               surface.blit(self.image, rect.topleft)
-           else: # Fallback warna jika gambar gagal dimuat
-               if self.tileType == TILE_SPAWN:
-                   color = COLOR_SPAWN 
-               elif self.tileType == TILE_BASE:
-                   color = COLOR_BASE
-               else: color == COLOR_PATH
+        elif self.is_path():
+            if self.image:
+                surface.blit(self.image, rect.topleft)
+             # Fallback warna jika gambar gagal dimuat
+            else: 
+                if self.tileType == TILE_SPAWN:
+                    color = COLOR_SPAWN 
+                elif self.tileType == TILE_BASE:
+                    color = COLOR_BASE
+                else: 
+                    color = COLOR_PATH
                 pg.draw.rect(surface, color, rect)
 
         # hover highlight 
-        if hovered and self.can_place_turret:
+        if hovered and self.can_place_turret():
             highlight = pg.Surface(rect.size, pg.SRCALPHA)
             highlight.fill((255, 255, 100, 80))
             surface.blit(highlight, rect.topleft)
@@ -160,10 +164,10 @@ class Grid:
                         cell.tileType = TILE_PATH
                     self.path.append(cell)
                     
-        self_update_path_image()
+        self._update_path_image()
 
-        def _update_path_image():
-            # Nilai tetangga: Atas=1, Kanan=2, Bawah=4, Kiri=8
+    def _update_path_image(self):
+        # Nilai tetangga: Atas=1, Kanan=2, Bawah=4, Kiri=8
         BITMASK_MAP = {
             1: Assets.TILE_STRAIGHT_V,    2: Assets.TILE_STRAIGHT_H,
             4: Assets.TILE_STRAIGHT_V,    8: Assets.TILE_STRAIGHT_H,
@@ -177,15 +181,16 @@ class Grid:
 
         for row in range(self.rows):
             for col in range(self.cols):
-                if self.is_path():
+                cell = self.cells[row][col]
+                if cell.is_path():
                     mask = 0
                     # Cek cell tetangga apakah cell tetangga merupakan jalan 
-                    if row > 0 and self.cells[row-1][col].is_path mask += 1
-                    if col > 0 and self.cells[row][col-1].is_path mask += 8
-                    if row < self.row - 1 and self.cells[row+1][col].is_path mask += 4
-                    if col < self.col - 1 and self.cells[row][col+1].is_path mask += 2
+                    if row > 0 and self.cells[row-1][col].is_path(): mask += 1
+                    if col > 0 and self.cells[row][col-1].is_path(): mask += 8
+                    if row < self.rows - 1 and self.cells[row+1][col].is_path(): mask += 4
+                    if col < self.cols - 1 and self.cells[row][col+1].is_path(): mask += 2
 
-                    cell.image = BITMASK_MAP.get(mask, none)
+                    cell.image = BITMASK_MAP.get(mask, None)
 
     def _segment_cells(
         self,
