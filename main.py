@@ -2,7 +2,8 @@ import pygame as pg
 from assets import Assets
 from map import Grid
 from enemy import NormalEnemy, FastEnemy, TankEnemy
-#edit
+from turret import ArcherTower, CannonTower
+
 pg.init()
 Assets.load()
 
@@ -28,6 +29,10 @@ spawn_timer    = 0.0
 spawn_queue    = [NormalEnemy, FastEnemy, NormalEnemy, TankEnemy,
                 FastEnemy, NormalEnemy, TankEnemy]  # urutan enemy yang muncul
 spawn_index    = 0
+
+# ── List turret dan projectile ────────────────────────────────────────────────
+turrets: list = []
+projectiles: list = []
 
 # ── Game loop ─────────────────────────────────────────────────────────────────
 running = True
@@ -58,12 +63,31 @@ while running:
     # Hapus enemy yang sudah tidak aktif (mati / sampai base)
     enemies = [e for e in enemies if e.alive]
 
+    # ── Update turret ─────────────────────────────────────────────────────────
+    for turret in turrets:
+        proj = turret.update(dt, enemies)
+        if proj:
+            projectiles.append(proj)
+
+    # ── Update projectile ─────────────────────────────────────────────────────
+    for proj in projectiles:
+        proj.update(dt, enemies)
+
+    # Hapus projectile yang sudah tidak aktif
+    projectiles = [p for p in projectiles if p.active]
+
     # ── Draw ──────────────────────────────────────────────────────────────────
     screen.fill((0, 0, 0))
     grid.draw(screen, show_grid=True, mousePos=mousePos)
 
     for enemy in enemies:
         enemy.draw(screen)
+
+    for turret in turrets:
+        turret.draw(screen)
+
+    for proj in projectiles:
+        proj.draw(screen)
 
     pg.display.flip()
 
