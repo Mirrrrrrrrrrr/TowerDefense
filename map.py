@@ -51,7 +51,7 @@ class Cell():
 
         if self.tileType == TILE_EMPTY:
             if Assets.TILE_EMPTY:
-                surface.blit(Assets.TILE_EMPTY, rect.topleft)
+                surface.blit(Assets.TILE_EMPTY, rect)
             else:
                 pg.draw.rect(surface, COLOR_EMPTY, rect)
 
