@@ -12,7 +12,7 @@ Assets.load()
 COLS, ROWS, CELL = 16, 16, 48
 HUD_WIDTH = 300
 screen = pg.display.set_mode((COLS * CELL + HUD_WIDTH, ROWS * CELL))
-grid = Grid(cols = COLS, rows = ROWS, cellSize = CELL, offset_x = HUD_WIDTH)
+grid = Grid(cols = COLS, rows = ROWS, cellSize = CELL, offset_x = 0)
 clock = pg.time.Clock()
 font  = pg.font.SysFont("monospace", 14)
 
