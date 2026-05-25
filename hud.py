@@ -112,7 +112,7 @@ class HUD:
         self._btn(surface, self.btn_upgrade, "UPGRADE", mouse, disabled=not can_upgrade, active=False)
 
         # Tooltip level turret yang dipilih
-        if selected_cell and selected_cell.is_occupied:
+        if selected_cell and selected_cell.is_occupied():
             t = self._find_turret(selected_cell, state)
             if t:
                 lv = f"Lv.{t.level}/3  |  dmg:{t.damage}  rng:{int(t.range)}"
@@ -126,7 +126,7 @@ class HUD:
             tile = ("Spawn" if hovered_cell._tileType == 2 else
                     "Base"  if hovered_cell._tileType == 3 else
                     "Path"  if hovered_cell._tileType == 1 else "Empty")
-            occ  = " [Turret]" if hovered_cell.is_occupied else ""
+            occ  = " [Turret]" if hovered_cell.is_occupied() else ""
             self._label(surface, f"({hovered_cell.col},{hovered_cell.row}) {tile}{occ}",
                         X + 10, 376, C_TEXT, self.font_xs)
 
@@ -149,8 +149,7 @@ class HUD:
                 if cell and cell.can_place_turret():
                     cost = self._get_cost(self.selected_turret_type)
                     if state.gold >= cost:
-                        state.place_turret(cell, self.selected_turret_type)
-                        state.gold -= cost
+                        state.add_turret(self.selected_turret_type, cell)
                         self.selected_turret_type = None
                         return "placed"
             return None
@@ -175,7 +174,7 @@ class HUD:
 
         if self.btn_upgrade.collidepoint(pos):
             sel = getattr(state, "selected_cell", None)
-            if sel and sel.is_occupied:
+            if sel and sel.is_occupied():
                 t = self._find_turret(sel, state)
                 if t:
                     # Placeholder for upgrade logic - replace with actual upgrade system
@@ -237,7 +236,7 @@ class HUD:
                     rect.x + 8, rect.y + 52, gc, self.font_xs)
 
     def _can_upgrade(self, selected_cell) -> bool:
-        return selected_cell is not None and selected_cell.is_occupied
+        return selected_cell is not None and selected_cell.is_occupied()
 
     def _find_turret(self, cell, state):
         for t in getattr(state, "turrets", []):
