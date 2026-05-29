@@ -1,5 +1,6 @@
 import pygame
 from turret import ArcherTower, CannonTower
+import level_data
 
 # ── Warna ────────────────────────────────────────────────────────────────────
 C_PANEL_BG    = (15,  18,  28)
@@ -26,9 +27,9 @@ class HUD:
         self.hud_width = hud_width
         self.hud_x     = screen_w - hud_width   # x awal panel kanan
 
-        self.font    = pygame.font.SysFont("monospace", 15, bold=True)
-        self.font_s  = pygame.font.SysFont("monospace", 13)
-        self.font_xs = pygame.font.SysFont("monospace", 11)
+        self.font    = pygame.font.SysFont("Arial", 16, bold=True)
+        self.font_s  = pygame.font.SysFont("Arial", 14)
+        self.font_xs = pygame.font.SysFont("Arial", 12)
 
         self.selected_turret_type = None
 
@@ -36,7 +37,7 @@ class HUD:
         X  = self.hud_x
 
         # ── Tombol PAUSE & SPEED ─────────────────────────────────────────────
-        self.btn_pause = pygame.Rect(X + 10,      10, (W - 30) // 2, 36)
+        self.btn_pause = pygame.Rect(X + 10, 10, (W - 30) // 2, 36)
         self.btn_speed = pygame.Rect(X + 10 + (W - 30) // 2 + 10,
                                      10, (W - 30) // 2, 36)
 
@@ -44,7 +45,7 @@ class HUD:
         btn_w = (W - 30) // 2
         self.shop_buttons: list[dict] = [
             {
-                "rect":        pygame.Rect(X + 10,            200, btn_w, 70),
+                "rect":        pygame.Rect(X + 10, 200, btn_w, 70),
                 "turret_type": ArcherTower,
                 "cost":        50,
                 "label":       "Archer",
@@ -108,15 +109,20 @@ class HUD:
             self._shop_btn(surface, btn, mouse, affordable, selected)
 
         # ── UPGRADE ───────────────────────────────────────────────────────────
-        can_upgrade = self._can_upgrade(selected_cell)
-        self._btn(surface, self.btn_upgrade, "UPGRADE", mouse, disabled=not can_upgrade, active=False)
+        can_upg = state.can_upgrade_turret(selected_cell)
+        self._btn(surface, self.btn_upgrade, "UPGRADE", mouse, disabled=not can_upg, active=False)
 
         # Tooltip level turret yang dipilih
         if selected_cell and selected_cell.is_occupied():
-            t = self._find_turret(selected_cell, state)
+            t = state.get_turret_at(selected_cell)
             if t:
-                lv = f"Lv.{t.level}/3  |  dmg:{t.damage}  rng:{int(t.range)}"
+                lv = f"Lv.{t.level}/{level_data.MAX_LEVEL}  |  dmg:{t.damage}  rng:{int(t.range)}"
                 self._label(surface, lv, X + 10, 332, C_TEXT_DIM, self.font_xs)
+                
+                cost = level_data.get_upgrade_cost(type(t).__name__, t.level)
+                if cost:
+                    c_col = C_GOLD if state.gold >= cost else C_HP
+                    self._label(surface, f"Cost: {cost}g", X + W - 80, 332, c_col, self.font_xs)
 
         self._sep(surface, X, W, 350)
 
@@ -146,10 +152,8 @@ class HUD:
             # Klik di area grid — place turret jika ada yang dipilih
             if self.selected_turret_type and grid:
                 cell = grid.cell_at_pos(*pos)
-                if cell and cell.can_place_turret():
-                    cost = self._get_cost(self.selected_turret_type)
-                    if state.gold >= cost:
-                        state.add_turret(self.selected_turret_type, cell)
+                if cell:
+                    if state.buy_and_place_turret(self.selected_turret_type, cell):
                         self.selected_turret_type = None
                         return "placed"
             return None
@@ -174,10 +178,8 @@ class HUD:
 
         if self.btn_upgrade.collidepoint(pos):
             sel = getattr(state, "selected_cell", None)
-            if sel and sel.is_occupied():
-                t = self._find_turret(sel, state)
-                if t:
-                    # Placeholder for upgrade logic - replace with actual upgrade system
+            if sel:
+                if state.upgrade_turret(sel):
                     return "upgraded"
             return None
 
@@ -234,15 +236,3 @@ class HUD:
 
         self._label(surface, btn["cost_str"],
                     rect.x + 8, rect.y + 52, gc, self.font_xs)
-
-    def _can_upgrade(self, selected_cell) -> bool:
-        return selected_cell is not None and selected_cell.is_occupied()
-
-    def _find_turret(self, cell, state):
-        for t in getattr(state, "turrets", []):
-            if t.cell is cell:
-                return t
-        return None
-
-    def _get_cost(self, turret_cls) -> int:
-        return {ArcherTower: 50, CannonTower: 120}.get(turret_cls, 999)
