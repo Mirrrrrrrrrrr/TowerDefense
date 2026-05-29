@@ -3,12 +3,13 @@ from map import Grid
 from enemy import NormalEnemy, FastEnemy, TankEnemy
 #from hud import HUD
 #from turret import ArcherTower, CannonTower
+import level_data
 
 pg.init()
 
 # ========== speed control ==========
 class gameSpeedCtrl:
-  SPEEDS: list[float] = [1.0, 2.0]
+  SPEEDS: list[float] = [1.0, 2.0, 3.0]
 
   def __init__(self):
     self.paused : bool = False
@@ -43,7 +44,7 @@ class GameManager:
   projectile: list = []
 
   @classmethod
-  def add_turret(cls, turret_class, cell) -> bool:
+  def buy_and_place_turret(cls, turret_class, cell) -> bool:
     """Mencoba membeli dan menempatkan turret baru di cell."""
     if cell.can_place_turret():
       if cls.gold >= turret_class.cost:
@@ -54,5 +55,34 @@ class GameManager:
         return True
       else:
         print(f"Gold tidak cukup! Harga: {turret_class.cost}, Gold kamu: {cls.gold}")
+    return False
+
+  @classmethod
+  def get_turret_at(cls, cell):
+    """Mengembalikan objek turret yang berada di cell tertentu."""
+    if not cell:
+      return None
+    for t in cls.turrets:
+      if t.cell is cell:
+        return t
+    return None
+
+  @classmethod
+  def can_upgrade_turret(cls, cell) -> bool:
+    """Mengecek apakah turret di cell bisa di-upgrade."""
+    target_turret = cls.get_turret_at(cell)
+    if target_turret:
+      return level_data.can_upgrade(target_turret, cls.gold)
+    return False
+
+  @classmethod
+  def upgrade_turret(cls, cell) -> bool:
+    """Menerapkan upgrade ke turret di cell jika gold cukup."""
+    target_turret = cls.get_turret_at(cell)
+    if target_turret and level_data.can_upgrade(target_turret, cls.gold):
+      cost = level_data.apply_upgrade(target_turret)
+      if cost > 0:
+        cls.gold -= cost
+        return True
     return False
   
