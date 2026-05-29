@@ -50,10 +50,10 @@ class MainMenu:
         self.w, self.h = screen.get_size()
         self.cx = self.w // 2
 
-        self.font_title  = pg.font.SysFont("monospace", 34, bold=True)
-        self.font_sub    = pg.font.SysFont("monospace", 11)
-        self.font_btn    = pg.font.SysFont("monospace", 13)
-        self.font_label  = pg.font.SysFont("monospace", 11)
+        self.font_title  = pg.font.SysFont("Arial", 34, bold=True)
+        self.font_sub    = pg.font.SysFont("Arial", 11)
+        self.font_btn    = pg.font.SysFont("Arial", 13)
+        self.font_label  = pg.font.SysFont("Arial", 11)
 
         # state: "home" | "levels" | "settings" | "credits"
         self.state = "home"
