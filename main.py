@@ -5,6 +5,8 @@ from enemy import NormalEnemy, FastEnemy, TankEnemy
 from turret import ArcherTower, CannonTower
 from game_manager import GameManager, gameSpeedCtrl
 from hud import HUD
+from main_menu import MainMenu
+from wave_manager import WaveManager
 
 pg.init()
 Assets.load()
@@ -12,6 +14,11 @@ Assets.load()
 COLS, ROWS, CELL = 16, 16, 48
 HUD_WIDTH = 300
 screen = pg.display.set_mode((COLS * CELL + HUD_WIDTH, ROWS * CELL))
+pg.display.set_caption("Tower Defense")
+
+menu = MainMenu(screen)
+game_state = "MENU"
+
 grid = Grid(cols = COLS, rows = ROWS, cellSize = CELL, offset_x = 0)
 clock = pg.time.Clock()
 font  = pg.font.SysFont("monospace", 14)
@@ -36,6 +43,9 @@ spawn_index    = 0
 # ── Beri Gold Awal ────────────────────────────────────────────────────────────
 GameManager.gold = 500  # Agar bisa membeli turret untuk testing
 
+wave_mgr = WaveManager(world_path)
+wave_mgr.start_wave()       # mulai wave pertama
+
 # ── Game loop ─────────────────────────────────────────────────────────────────
 running = True
 while running:
@@ -48,21 +58,29 @@ while running:
         if event.type == pg.QUIT:
             running = False
         if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
-            running = False
-        if event.type == pg.MOUSEBUTTONDOWN:
-            if event.button == 1:  # Klik Kiri
-                action = hud.handle_click(mousePos, GameManager, speed_ctrl, grid)
-                if not action and mousePos[0] < hud.hud_x:
-                    GameManager.selected_cell = grid.cell_at_pos(*mousePos)
+            if game_state == "GAME":
+                game_state = "MENU"
+            else:
+                running = False
+                
+        if game_state == "MENU":
+            result = menu.handle_event(event)
+            if result and result.startswith("level_"):
+                game_state = "GAME"
+        elif game_state == "GAME":
+            if event.type == pg.MOUSEBUTTONDOWN:
+                if event.button == 1:  # Klik Kiri
+                    action = hud.handle_click(mousePos, GameManager, speed_ctrl, grid)
+                    if not action and mousePos[0] < hud.hud_x:
+                        GameManager.selected_cell = grid.cell_at_pos(*mousePos)
 
-    # ── Spawn enemy ───────────────────────────────────────────────────────────
-    if world_path and spawn_index < len(spawn_queue):
-        spawn_timer += dt
-        if spawn_timer >= SPAWN_INTERVAL:
-            spawn_timer = 0.0
-            enemy_cls = spawn_queue[spawn_index]
-            GameManager.enemies.append(enemy_cls(world_path))
-            spawn_index += 1
+    if game_state == "MENU":
+        menu.draw()
+        pg.display.flip()
+        continue
+        
+    # ── Wave Manager ───────────────────────────────────────────────────────────
+    wave_mgr.update(dt, GameManager.enemies)
 
     # ── Update enemy ──────────────────────────────────────────────────────────
     for enemy in GameManager.enemies:
@@ -97,7 +115,8 @@ while running:
         enemy.draw(screen)
 
     for turret in GameManager.turrets:
-        turret.draw(screen)
+        is_hovered = (turret.cell is hovered_cell) or (turret.cell is GameManager.selected_cell)
+        turret.draw(screen, hovered=is_hovered)
 
     for proj in GameManager.projectile:
         proj.draw(screen)
