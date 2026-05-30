@@ -205,7 +205,7 @@ class ArcherTower(Turret):
         cx, cy = self.cell.get_center()
         return Arrow(cx, cy, target, self.damage)
 
-    def draw(self, surface: pygame.Surface):
+    def draw(self, surface: pygame.Surface, hovered: bool = False):
         cx, cy = self.cell.get_center()
         size = 12
 
@@ -223,6 +223,13 @@ class ArcherTower(Turret):
         for i in range(self.level):
             pygame.draw.circle(surface, (255, 215, 0),
                                (int(cx) - 6 + i * 5, int(cy) + size // 2 + 4), 2)
+
+        if hovered:
+            self.draw_range(surface)
+            rect = self.cell.get_rect()
+            highlight = pygame.Surface(rect.size, pygame.SRCALPHA)
+            highlight.fill((255, 255, 100, 80))
+            surface.blit(highlight, rect.topleft)
 
 
 # ── CannonTower ───────────────────────────────────────────────────────────────
@@ -243,7 +250,7 @@ class CannonTower(Turret):
         cx, cy = self.cell.get_center()
         return Cannonball(cx, cy, target, self.damage, self.splash_radius)
 
-    def draw(self, surface: pygame.Surface):
+    def draw(self, surface: pygame.Surface, hovered: bool = False):
         cx, cy = self.cell.get_center()
         size = 18
 
@@ -272,3 +279,10 @@ class CannonTower(Turret):
         for i in range(self.level):
             pygame.draw.circle(surface, (255, 215, 0),
                                (int(cx) - 6 + i * 5, int(cy) + size // 2 + 4), 2)
+
+        if hovered:
+            self.draw_range(surface)
+            rect = self.cell.get_rect()
+            highlight = pygame.Surface(rect.size, pygame.SRCALPHA)
+            highlight.fill((255, 255, 100, 80))
+            surface.blit(highlight, rect.topleft)
