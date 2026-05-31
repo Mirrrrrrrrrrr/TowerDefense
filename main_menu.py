@@ -3,21 +3,19 @@ import sys
 
 pg.init()
 
-C_BG        = (10,  22,  40)
-C_GRID      = (255, 255, 255, 8)
-C_TITLE     = (232, 216, 122)
-C_SUBTITLE  = (90, 122, 154)
-C_BTN_BG    = (13,  31,  56)
-C_BTN_BDR   = (30,  58,  95)
-C_BTN_HOV   = (20,  45,  77)
+C_BG          = (10,  22,  40)
+C_GRID        = (255, 255, 255, 8)
+C_TITLE       = (232, 216, 122)
+C_SUBTITLE    = (90,  122, 154)
+C_BTN_BG      = (13,  31,  56)
+C_BTN_BDR     = (30,  58,  95)
+C_BTN_HOV     = (20,  45,  77)
 C_BTN_HOV_BDR = (232, 216, 122)
-C_TEXT      = (168, 196, 224)
-C_TEXT_HOV  = (232, 216, 122)
-C_DIM       = (58,  90, 122)
+C_TEXT        = (168, 196, 224)
+C_TEXT_HOV    = (232, 216, 122)
+C_DIM         = (58,  90, 122)
 
-MEMBERS = ["Arya", "Mirza", "Galang", "Reynaldi"]
-LEVELS  = ["Forest", "Desert", "Tundra", "Volcano", "Abyss"]
-
+MEMBERS = ["Arya", "Mirza", "Galang", "Reynaldy"]
 
 def draw_text_centered(surface, text, font, color, cx, y):
     t = font.render(text, True, color)
@@ -26,9 +24,9 @@ def draw_text_centered(surface, text, font, color, cx, y):
 
 
 def draw_button(surface, rect, label, font, hovered):
-    bg  = C_BTN_HOV   if hovered else C_BTN_BG
+    bg  = C_BTN_HOV     if hovered else C_BTN_BG
     bdr = C_BTN_HOV_BDR if hovered else C_BTN_BDR
-    tc  = C_TEXT_HOV  if hovered else C_TEXT
+    tc  = C_TEXT_HOV    if hovered else C_TEXT
     pg.draw.rect(surface, bg,  rect, border_radius=4)
     pg.draw.rect(surface, bdr, rect, 1, border_radius=4)
     t = font.render(label, True, tc)
@@ -55,37 +53,24 @@ class MainMenu:
         self.font_btn    = pg.font.SysFont("Arial", 13)
         self.font_label  = pg.font.SysFont("Arial", 11)
 
-        # state: "home" | "levels" | "settings" | "credits"
+        # state: "home" | "settings" | "credits"
         self.state = "home"
 
-        # Tombol home
+        # Home buttons — PLAY goes straight to ingame (no level select)
         bw, bh, gap = 240, 44, 10
         bx = self.cx - bw // 2
         by = self.h // 2 - 20
         self.home_btns = [
-            {"label": "PLAY",     "rect": pg.Rect(bx, by,             bw, bh), "action": "levels"},
-            {"label": "SETTINGS", "rect": pg.Rect(bx, by + bh + gap,  bw, bh), "action": "settings"},
+            {"label": "PLAY",     "rect": pg.Rect(bx, by,              bw, bh), "action": "play"},
+            {"label": "SETTINGS", "rect": pg.Rect(bx, by + bh + gap,   bw, bh), "action": "settings"},
             {"label": "CREDITS",  "rect": pg.Rect(bx, by + (bh+gap)*2, bw, bh), "action": "credits"},
         ]
-
-        # Level buttons (3×2 grid)
-        lw, lh = 88, 72
-        lgap = 8
-        cols = 3
-        total_w = cols * lw + (cols - 1) * lgap
-        lx0 = self.cx - total_w // 2
-        ly0 = self.h // 2 - 90
-        self.level_btns = []
-        for i, name in enumerate(LEVELS):
-            c, r = i % cols, i // cols
-            rect = pg.Rect(lx0 + c * (lw + lgap), ly0 + r * (lh + lgap), lw, lh)
-            self.level_btns.append({"label": name, "num": i + 1, "rect": rect})
 
         # Back button
         self.back_btn = pg.Rect(self.cx - 60, self.h - 80, 120, 36)
 
     def handle_event(self, event) -> str | None:
-        """Return 'level_N' saat level dipilih, None otherwise."""
+        """Return 'start_game' when PLAY is clicked, None otherwise."""
         if event.type != pg.MOUSEBUTTONDOWN or event.button != 1:
             return None
         pos = event.pos
@@ -93,14 +78,9 @@ class MainMenu:
         if self.state == "home":
             for btn in self.home_btns:
                 if btn["rect"].collidepoint(pos):
+                    if btn["action"] == "play":
+                        return "start_game"
                     self.state = btn["action"]
-
-        elif self.state == "levels":
-            for btn in self.level_btns:
-                if btn["rect"].collidepoint(pos):
-                    return f"level_{btn['num']}"
-            if self.back_btn.collidepoint(pos):
-                self.state = "home"
 
         elif self.state in ("settings", "credits"):
             if self.back_btn.collidepoint(pos):
@@ -115,8 +95,6 @@ class MainMenu:
 
         if self.state == "home":
             self._draw_home(mouse)
-        elif self.state == "levels":
-            self._draw_levels(mouse)
         elif self.state == "settings":
             self._draw_settings(mouse)
         elif self.state == "credits":
@@ -133,31 +111,6 @@ class MainMenu:
             draw_button(self.screen, btn["rect"], btn["label"],
                         self.font_btn, btn["rect"].collidepoint(mouse))
 
-    # ── levels ────────────────────────────────────────────────────────────────
-
-    def _draw_levels(self, mouse):
-        draw_text_centered(self.screen, "S E L E C T  L E V E L",
-                           self.font_sub, C_SUBTITLE, self.cx, self.h // 2 - 120)
-        for btn in self.level_btns:
-            hov = btn["rect"].collidepoint(mouse)
-            bg  = C_BTN_HOV   if hov else C_BTN_BG
-            bdr = C_BTN_HOV_BDR if hov else C_BTN_BDR
-            tc  = C_TEXT_HOV  if hov else C_TEXT
-            pg.draw.rect(self.screen, bg,  btn["rect"], border_radius=4)
-            pg.draw.rect(self.screen, bdr, btn["rect"], 1, border_radius=4)
-            # nomor level
-            num_t = self.font_btn.render(f"{btn['num']:02d}", True, tc)
-            self.screen.blit(num_t, num_t.get_rect(
-                centerx=btn["rect"].centerx,
-                y=btn["rect"].y + 14))
-            # nama level
-            name_t = self.font_label.render(btn["label"].upper(), True,
-                                            C_DIM if not hov else (160, 136, 64))
-            self.screen.blit(name_t, name_t.get_rect(
-                centerx=btn["rect"].centerx,
-                y=btn["rect"].y + 38))
-        self._draw_back(mouse)
-
     # ── settings ─────────────────────────────────────────────────────────────
 
     def _draw_settings(self, mouse):
@@ -170,9 +123,9 @@ class MainMenu:
             rect = pg.Rect(self.cx - rw // 2, ry, rw, rh)
             pg.draw.rect(self.screen, C_BTN_BG,  rect, border_radius=4)
             pg.draw.rect(self.screen, C_BTN_BDR, rect, 1, border_radius=4)
-            lbl = self.font_label.render(label, True, C_TEXT)
-            val_t = self.font_label.render(val, True, C_TITLE)
-            self.screen.blit(lbl, (rect.x + 14, rect.centery - lbl.get_height() // 2))
+            lbl   = self.font_label.render(label, True, C_TEXT)
+            val_t = self.font_label.render(val,   True, C_TITLE)
+            self.screen.blit(lbl,   (rect.x + 14, rect.centery - lbl.get_height() // 2))
             self.screen.blit(val_t, (rect.right - val_t.get_width() - 14,
                                      rect.centery - val_t.get_height() // 2))
             ry += rh + 8
@@ -213,8 +166,7 @@ class MainMenu:
         pg.draw.rect(self.screen, C_BTN_HOV if hov else (0, 0, 0, 0),
                      self.back_btn, border_radius=4)
         pg.draw.rect(self.screen, C_BTN_BDR, self.back_btn, 1, border_radius=4)
-        t = self.font_label.render("< BACK", True,
-                                   C_TEXT_HOV if hov else C_DIM)
+        t = self.font_label.render("< BACK", True, C_TEXT_HOV if hov else C_DIM)
         self.screen.blit(t, t.get_rect(center=self.back_btn.center))
 
 
@@ -223,8 +175,8 @@ class MainMenu:
 if __name__ == "__main__":
     screen = pg.display.set_mode((1068, 768))
     pg.display.set_caption("Tower Defense")
-    clock  = pg.time.Clock()
-    menu   = MainMenu(screen)
+    clock = pg.time.Clock()
+    menu  = MainMenu(screen)
 
     running = True
     while running:
@@ -233,7 +185,7 @@ if __name__ == "__main__":
                 running = False
             result = menu.handle_event(event)
             if result:
-                print(f"Selected: {result}")  # ganti dengan load level
+                print(f"Action: {result}")  # ganti dengan load ingame
 
         menu.draw()
         pg.display.flip()
