@@ -65,7 +65,7 @@ while running:
                 
         if game_state == "MENU":
             result = menu.handle_event(event)
-            if result and result.startswith("level_"):
+            if result == "start_game":
                 game_state = "GAME"
         elif game_state == "GAME":
             if event.type == pg.MOUSEBUTTONDOWN:
