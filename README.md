@@ -1,7 +1,5 @@
 # TowerDefense
 
-# Tower Defense
-
 Game tower defense berbasis grid yang dibangun menggunakan **Python** dan **Pygame**, sebagai project mata kuliah **Pemrograman Berorientasi Objek (PBO)** — Universitas Negeri Surabaya, 2025.
 
 ---
