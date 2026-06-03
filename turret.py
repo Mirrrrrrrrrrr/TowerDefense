@@ -2,6 +2,7 @@ import pygame
 import math
 from abc import ABC, abstractmethod
 from map import Cell
+from assets import Assets
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -55,7 +56,7 @@ class Projectile(ABC):
 class Arrow(Projectile):
     """Proyektil single-target. Digambar sebagai garis kecil / segitiga."""
 
-    speed_default: float = 300.0   # pixel / detik
+    speed_default: float = 500.0   # pixel / detik
 
     def __init__(self, x: float, y: float, target, damage: int):
         super().__init__(x, y, target, damage, speed=self.speed_default)
@@ -90,24 +91,68 @@ class Arrow(Projectile):
 class Cannonball(Projectile):
     """Proyektil area-damage (splash). Digambar sebagai lingkaran gelap."""
 
-    speed_default: float = 150.0   # pixel / detik
+    speed_default: float = 300.0   # pixel / detik
 
     def __init__(self, x: float, y: float, target, damage: int,
-                 splash_radius: float = 60.0):
+                 splash_radius: float = 17.5):
         super().__init__(x, y, target, damage, speed=self.speed_default)
         self.splash_radius: float = splash_radius
+        self.exploded: bool = False
+        self.explosion_timer: float = 0.15  # Tahan ledakan selama 0.15 detik
+
+    def update(self, dt: float, enemies: list):
+        if self.exploded:
+            self.explosion_timer -= dt
+            if self.explosion_timer <= 0:
+                self.active = False
+            return
+
+        if not self.active:
+            return
+
+        if not self.target.alive:
+            self.active = False
+            return
+
+        tx, ty = self.target.x, self.target.y
+        dx, dy = tx - self.x, ty - self.y
+        dist = math.hypot(dx, dy)
+
+        move = self.speed * dt
+        if dist <= move:
+            self.x, self.y = tx, ty
+            self.on_hit(self.target, enemies)
+            self.exploded = True
+        else:
+            self.x += (dx / dist) * move
+            self.y += (dy / dist) * move
+
+    def draw_splash_radius(self, surface: pygame.Surface):
+        splash_surf = pygame.Surface(
+            (int(self.splash_radius * 2), int(self.splash_radius * 2)), pygame.SRCALPHA
+        )
+        # Gambar area ledakan oranye transparan
+        pygame.draw.circle(
+            splash_surf, (255, 120, 20, 130),
+            (int(self.splash_radius), int(self.splash_radius)), int(self.splash_radius)
+        )
+        surface.blit(splash_surf, (int(self.x - self.splash_radius), int(self.y - self.splash_radius)))
 
     def on_hit(self, enemy, enemies: list):
         """Damage ke semua enemy dalam splash_radius dari titik impact."""
         impact_x, impact_y = self.target.x, self.target.y
+        enemy.take_damage(self.damage)
         for e in enemies:
             if e.alive:
                 dist = math.hypot(e.x - impact_x, e.y - impact_y)
-                if dist <= self.splash_radius:
-                    e.take_damage(self.damage)
+                if dist <= self.splash_radius and e != enemy:
+                    e.take_damage(self.damage // 2)
 
     def draw(self, surface: pygame.Surface):
         if not self.active:
+            return
+        if self.exploded:
+            self.draw_splash_radius(surface)
             return
         # Lingkaran gelap berukuran sedang
         pygame.draw.circle(surface, (50, 30, 10),  (int(self.x), int(self.y)), 7)
@@ -185,7 +230,7 @@ class Turret(ABC):
     def shoot(self, target) -> Projectile: ...
 
     @abstractmethod
-    def draw(self, surface: pygame.Surface): ...
+    def draw(self, surface: pygame.Surface, hovered: bool = False): ...
 
 
 # ── ArcherTower ───────────────────────────────────────────────────────────────
@@ -195,14 +240,15 @@ class ArcherTower(Turret):
 
     damage: int         = 10
     attack_speed: float = 1.5   # tembakan/detik
-    range: float        = 150.0
-    cost: int           = 50
+    range: float        = 120.0
+    cost: int           = 100
 
     def __init__(self, cell: Cell):
         super().__init__(cell)
 
     def shoot(self, target) -> Arrow:
         cx, cy = self.cell.get_center()
+        Assets.play_sound(Assets.SND_SHOOT_ARCHER)
         return Arrow(cx, cy, target, self.damage)
 
     def draw(self, surface: pygame.Surface, hovered: bool = False):
@@ -229,7 +275,7 @@ class ArcherTower(Turret):
             rect = self.cell.get_rect()
             highlight = pygame.Surface(rect.size, pygame.SRCALPHA)
             highlight.fill((255, 255, 100, 80))
-            surface.blit(highlight, rect.topleft)
+            surface.blit(highlight, rect.topleft) 
 
 
 # ── CannonTower ───────────────────────────────────────────────────────────────
@@ -237,17 +283,18 @@ class ArcherTower(Turret):
 class CannonTower(Turret):
     """Turret meriam. Lambat, damage besar, splash area."""
 
-    damage: int         = 60
-    attack_speed: float = 0.4   # tembakan/detik
-    range: float        = 120.0
-    cost: int           = 120
-    splash_radius: float = 60.0
+    damage: int         = 50
+    attack_speed: float = 0.3   # tembakan/detik
+    range: float        = 80.0
+    cost: int           = 225
+    splash_radius: float = 17.5
 
     def __init__(self, cell: Cell):
         super().__init__(cell)
 
     def shoot(self, target) -> Cannonball:
         cx, cy = self.cell.get_center()
+        Assets.play_sound(Assets.SND_SHOOT_CANNON)
         return Cannonball(cx, cy, target, self.damage, self.splash_radius)
 
     def draw(self, surface: pygame.Surface, hovered: bool = False):
