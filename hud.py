@@ -47,18 +47,18 @@ class HUD:
             {
                 "rect":        pygame.Rect(X + 10, 200, btn_w, 70),
                 "turret_type": ArcherTower,
-                "cost":        50,
+                "cost":        ArcherTower.cost,
                 "label":       "Archer",
                 "desc":        ["Cepat, single", "target, murah"],
-                "cost_str":    "50g",
+                "cost_str":    str(ArcherTower.cost),
             },
             {
                 "rect":        pygame.Rect(X + 10 + btn_w + 10, 200, btn_w, 70),
                 "turret_type": CannonTower,
-                "cost":        120,
+                "cost":        CannonTower.cost,
                 "label":       "Cannon",
                 "desc":        ["Lambat, AoE,", "mahal"],
-                "cost_str":    "120g",
+                "cost_str":    str(CannonTower.cost),
             },
         ]
 
