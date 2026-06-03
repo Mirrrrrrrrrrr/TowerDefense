@@ -1,6 +1,7 @@
 import pygame
 import math
 from abc import ABC, abstractmethod
+from assets import Assets
 
 
 # ── Enemy ABC ────────────────────────────────────────────────────────────────
@@ -21,13 +22,19 @@ class Enemy(ABC):
         self.reached_base: bool = False
         self.rect: pygame.Rect = pygame.Rect(int(self.x) - 8, int(self.y) - 8, 16, 16)
         self.target_index: int = 0   # alias path_index (sesuai class diagram)
+        self.snd_death = None
 
     # ── damage & state ────────────────────────────────────────────────────────
 
     def take_damage(self, amount: float):
+        if not self.alive:
+            return
         self.hp -= amount
-        if self.hp <= 0:
+        if self.hp > 0:
+            Assets.play_sound(Assets.SND_HIT)
+        else:
             self.hp = 0
+            Assets.play_sound(self.snd_death)
             self.alive = False
 
     def is_dead(self) -> bool:
@@ -48,11 +55,14 @@ class Enemy(ABC):
         dx, dy = tx - self.x, ty - self.y
         dist = math.hypot(dx, dy)
 
-        if dist < 2:
+        move = self.speed * dt * 60   # ×60 agar terasa wajar di 60 FPS
+
+        if dist <= move:
+            # Snap ke posisi target agar tidak overshoot / jittering
+            self.x, self.y = tx, ty
             self.path_index += 1
             self.target_index = self.path_index
         else:
-            move = self.speed * dt * 60   # ×60 agar terasa wajar di 60 FPS
             self.x += (dx / dist) * move
             self.y += (dy / dist) * move
 
@@ -83,13 +93,14 @@ class NormalEnemy(Enemy):
 
     def __init__(self, world_path: list[tuple[float, float]]):
         super().__init__(world_path)
-        self.hp = 100
-        self.max_hp = 100
+        self.hp = 30
+        self.max_hp = 30
         self.speed = 1
-        self.reward = 10
+        self.reward = 5
         self.damage_to_base = 5
         self.color = (60, 200, 60)
         self.size = 14
+        self.snd_death = Assets.SND_DEATH_N
 
     def draw(self, surface: pygame.Surface):
         if not self.alive:
@@ -113,13 +124,14 @@ class FastEnemy(Enemy):
 
     def __init__(self, world_path: list[tuple[float, float]]):
         super().__init__(world_path)
-        self.hp = 40
-        self.max_hp = 40
-        self.speed = 2
-        self.reward = 15
+        self.hp = 20
+        self.max_hp = 20
+        self.speed = 2.5
+        self.reward = 10
         self.damage_to_base = 5
         self.color = (80, 160, 255)
         self.size = 10
+        self.snd_death = Assets.SND_DEATH_N
 
     def draw(self, surface: pygame.Surface):
         if not self.alive:
@@ -139,13 +151,14 @@ class TankEnemy(Enemy):
 
     def __init__(self, world_path: list[tuple[float, float]]):
         super().__init__(world_path)
-        self.hp = 400
-        self.max_hp = 400
-        self.speed = 0.5
-        self.reward = 30
+        self.hp = 600
+        self.max_hp = 600
+        self.speed = 0.6
+        self.reward = 25
         self.damage_to_base = 20
         self.color = (200, 60, 60)
         self.size = 22
+        self.snd_death = Assets.SND_DEATH_N
 
     def draw(self, surface: pygame.Surface):
         if not self.alive:
