@@ -1,5 +1,6 @@
 import pygame as pg
 import sys
+from game_manager import GameSettings
 
 pg.init()
 
@@ -69,6 +70,15 @@ class MainMenu:
         # Back button
         self.back_btn = pg.Rect(self.cx - 60, self.h - 80, 120, 36)
 
+        # Settings buttons
+        rw, rh = 280, 40
+        ry = self.h // 2 - 80
+        self.setting_rects = {
+            "sound": pg.Rect(self.cx - rw // 2, ry, rw, rh),
+            "music": pg.Rect(self.cx - rw // 2, ry + rh + 8, rw, rh),
+            "grid":  pg.Rect(self.cx - rw // 2, ry + (rh + 8)*2, rw, rh),
+        }
+
     def handle_event(self, event) -> str | None:
         """Return 'start_game' when PLAY is clicked, None otherwise."""
         if event.type != pg.MOUSEBUTTONDOWN or event.button != 1:
@@ -85,12 +95,24 @@ class MainMenu:
         elif self.state in ("settings", "credits"):
             if self.back_btn.collidepoint(pos):
                 self.state = "home"
+            elif self.state == "settings":
+                if self.setting_rects["sound"].collidepoint(pos):
+                    GameSettings.SOUND_ON = not GameSettings.SOUND_ON
+                elif self.setting_rects["music"].collidepoint(pos):
+                    GameSettings.MUSIC_ON = not GameSettings.MUSIC_ON
+                    if GameSettings.MUSIC_ON:
+                        pg.mixer.music.unpause()
+                    else:
+                        pg.mixer.music.pause()
+                elif self.setting_rects["grid"].collidepoint(pos):
+                    GameSettings.SHOW_GRID = not GameSettings.SHOW_GRID
 
         return None
 
     def draw(self):
         self.screen.fill(C_BG)
-        draw_grid(self.screen, self.w, self.h)
+        if GameSettings.SHOW_GRID:
+            draw_grid(self.screen, self.w, self.h)
         mouse = pg.mouse.get_pos()
 
         if self.state == "home":
@@ -116,11 +138,14 @@ class MainMenu:
     def _draw_settings(self, mouse):
         draw_text_centered(self.screen, "S E T T I N G S",
                            self.font_sub, C_SUBTITLE, self.cx, self.h // 2 - 120)
-        rows = [("SOUND", "ON"), ("MUSIC", "ON"), ("SHOW GRID", "ON"), ("FPS LIMIT", "60")]
-        rw, rh = 280, 40
-        ry = self.h // 2 - 80
-        for label, val in rows:
-            rect = pg.Rect(self.cx - rw // 2, ry, rw, rh)
+        
+        rows = [
+            ("SOUND", "ON" if GameSettings.SOUND_ON else "OFF", self.setting_rects["sound"]),
+            ("MUSIC", "ON" if GameSettings.MUSIC_ON else "OFF", self.setting_rects["music"]),
+            ("SHOW GRID", "ON" if GameSettings.SHOW_GRID else "OFF", self.setting_rects["grid"]),
+        ]
+        
+        for label, val, rect in rows:
             pg.draw.rect(self.screen, C_BTN_BG,  rect, border_radius=4)
             pg.draw.rect(self.screen, C_BTN_BDR, rect, 1, border_radius=4)
             lbl   = self.font_label.render(label, True, C_TEXT)
@@ -128,7 +153,6 @@ class MainMenu:
             self.screen.blit(lbl,   (rect.x + 14, rect.centery - lbl.get_height() // 2))
             self.screen.blit(val_t, (rect.right - val_t.get_width() - 14,
                                      rect.centery - val_t.get_height() // 2))
-            ry += rh + 8
         self._draw_back(mouse)
 
     # ── credits ───────────────────────────────────────────────────────────────
@@ -185,7 +209,7 @@ if __name__ == "__main__":
                 running = False
             result = menu.handle_event(event)
             if result:
-                print(f"Action: {result}")  # ganti dengan load ingame
+                print(f"Action: {result}")  
 
         menu.draw()
         pg.display.flip()
