@@ -15,7 +15,7 @@ Game tower defense berbasis grid yang dibangun menggunakan **Python** dan **Pyga
 
 ---
 
-## 📖 Deskripsi Project
+##  Deskripsi Project
 
 Tower Defense adalah game berbasis grid 16×16 di mana pemain bertugas mempertahankan basis dari serangan gelombang (wave) musuh. Pemain menempatkan menara pertahanan (turret) di sel kosong untuk menghancurkan musuh sebelum mereka mencapai basis.
 
