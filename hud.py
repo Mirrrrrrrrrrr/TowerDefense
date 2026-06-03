@@ -119,7 +119,7 @@ class HUD:
                 lv = f"Lv.{t.level}/{level_data.MAX_LEVEL}  |  dmg:{t.damage}  rng:{int(t.range)}"
                 self._label(surface, lv, X + 10, 332, C_TEXT_DIM, self.font_xs)
                 
-                cost = level_data.get_upgrade_cost(type(t).__name__, t.level)
+                cost = state.get_upgrade_cost(type(t).__name__, t.level)
                 if cost:
                     c_col = C_GOLD if state.gold >= cost else C_HP
                     self._label(surface, f"Cost: {cost}g", X + W - 80, 332, c_col, self.font_xs)
