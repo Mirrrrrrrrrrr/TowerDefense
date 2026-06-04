@@ -147,6 +147,7 @@ Hal yang sama berlaku untuk `turret.shoot()` (mengembalikan `Arrow` atau `Cannon
 ---
 # Screenshot
 
+![Screenshot](dokumentasi/mainmenu.png)
 
 ---
 ##  Struktur File
