@@ -24,9 +24,7 @@ class Assets:
     SND_SHOOT_CANNON = None
     SND_HIT = None
     SND_BUY = None
-    SND_DEATH_F = None
-    SND_DEATH_N = None
-    SND_DEATH_T = None
+    SND_DEATH = None
     SND_MASUKBASE = None
     SND_TEROMPET = None
     SND_UPGRADE = None
@@ -55,9 +53,7 @@ class Assets:
         cls.SND_SHOOT_CANNON = cls._load_sound("assets/sound/cannonsound.mp3")
         cls.SND_HIT          = cls._load_sound("assets/sound/hit.wav")
         cls.SND_BUY          = cls._load_sound("assets/sound/buy.mp3")
-        cls.SND_DEATH_F      = cls._load_sound("assets/sound/deathFEnemy.wav")
-        cls.SND_DEATH_N      = cls._load_sound("assets/sound/deathNEnemy.wav")
-        cls.SND_DEATH_T      = cls._load_sound("assets/sound/deathTEnemy.wav")
+        cls.SND_DEATH        = cls._load_sound("assets/sound/deathEnemy.wav")
         cls.SND_MASUKBASE    = cls._load_sound("assets/sound/masukbase.mp3")
         cls.SND_TEROMPET     = cls._load_sound("assets/sound/terompetwave.mp3", vol=0.2)
         cls.SND_UPGRADE      = cls._load_sound("assets/sound/upgrade.wav")
