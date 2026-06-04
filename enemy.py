@@ -100,7 +100,7 @@ class NormalEnemy(Enemy):
         self.damage_to_base = 5
         self.color = (60, 200, 60)
         self.size = 14
-        self.snd_death = Assets.SND_DEATH_N
+        self.snd_death = Assets.SND_DEATH
 
     def draw(self, surface: pygame.Surface):
         if not self.alive:
@@ -131,7 +131,7 @@ class FastEnemy(Enemy):
         self.damage_to_base = 5
         self.color = (80, 160, 255)
         self.size = 10
-        self.snd_death = Assets.SND_DEATH_N
+        self.snd_death = Assets.SND_DEATH
 
     def draw(self, surface: pygame.Surface):
         if not self.alive:
@@ -158,7 +158,7 @@ class TankEnemy(Enemy):
         self.damage_to_base = 20
         self.color = (200, 60, 60)
         self.size = 22
-        self.snd_death = Assets.SND_DEATH_N
+        self.snd_death = Assets.SND_DEATH
 
     def draw(self, surface: pygame.Surface):
         if not self.alive:
