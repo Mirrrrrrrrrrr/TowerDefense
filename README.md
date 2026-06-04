@@ -144,6 +144,8 @@ Hal yang sama berlaku untuk `turret.shoot()` (mengembalikan `Arrow` atau `Cannon
 | `GameManager` (`game_manager.py`) | `__apply_upgrade()` | Private | Logika upgrade tidak dapat dipanggil langsung dari luar class |
 | `gameSpeedCtrl` | `_speedIdx` | Protected | Diakses hanya melalui property `speed` dan method `cycle_speed()` |
 
+# Screenshot
+
 ---
 
 ##  Struktur File
