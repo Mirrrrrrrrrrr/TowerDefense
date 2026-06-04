@@ -146,8 +146,23 @@ Hal yang sama berlaku untuk `turret.shoot()` (mengembalikan `Arrow` atau `Cannon
 
 ---
 # Screenshot
-
+### 1. Main Menu
 ![Screenshot](dokumentasi/mainmenu.png)
+
+### 2. Settings
+![Screenshot](dokumentasi/settings.png)
+
+### 3. Credit
+![Screenshot](dokumentasi/settings.png)
+
+### 4. Gameplay
+![Screenshot](dokumentasi/gameplay.png)
+
+### 5. Victory
+![Screenshot](dokumentasi/victory.png)
+
+### 6. Game Over
+![Screenshot](dokumentasi/gameover.png)
 
 ---
 ##  Struktur File
